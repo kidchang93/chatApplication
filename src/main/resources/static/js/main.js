@@ -7,7 +7,7 @@ var usernameForm = document.querySelector("#usernameForm");
 var messageForm = document.querySelector("#messageForm");
 var messageInput = document.querySelector("#message");
 var messageArea = document.querySelector("#messageArea");
-var connectingElement = document.querySelector("#connecting");
+var connectingElement = document.querySelector(".connecting");
 
 // 변수 선언
 var stompClient = null;
@@ -17,16 +17,15 @@ var colors = [
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
 
-
-
 // 사용자 이름 양식
 function connect(event){
     username = document.querySelector('#name').value.trim();
+
     if (username){
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
 
-        var socket = new SocketJS('/ws');
+        var socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
         // 연결하려면 매개변수들이 있어야함.
         stompClient.connect({}, onConnected, onError);
@@ -46,16 +45,43 @@ function onConnected() {
     connectingElement.classList.add('hidden');
 }
 
-function onError(){
+function onError(error){
     connectingElement.textContent = '웹소켓 서버에 연결할 수 없습니다.';
     connectingElement.style.color = 'red';
 }
 
+
+
+function sendMessage(event) {
+
+    var messageContent = messageInput.value.trim();
+
+    // 클라이언트가 끊어졌을 때마다 봐야돼
+    if (messageContent && stompClient){
+        var chatMessage = {
+            sender: username,
+            content: messageInput.value,
+            type:'CHAT'
+        }
+        stompClient.send('/add/chat.sendMessage', {}, JSON.stringify(chatMessage));
+        messageInput.value = '';
+    }
+    event.preventDefault();
+}
+
+
+
+
+
 function onMessageReceived(payload) {
+    /*페이로드에서 먼저 JSON을 추출
+    * 그 다음 li 태그가 ul 하위에 표시. */
+
     var message = JSON.parse(payload.body)
 
     var messageElement = document.createElement('li');
 
+    /*message.tpe 에 따라 보내지는 메세지*/
     if (message.type === 'JOIN'){
         messageElement.classList.add('event-message');
         message.content = message.sender + 'joined!';
@@ -65,6 +91,8 @@ function onMessageReceived(payload) {
     } else {
         messageElement.classList.add('chat-message');
 
+
+        // 메세지를 보낸사람의 색깔을 구성하기 위한 과정
         var avatarElement = document.createElement('i');
         var avatarText = document.createTextNode(message.sender[0]);
         avatarElement.appendChild(avatarText);
@@ -80,29 +108,31 @@ function onMessageReceived(payload) {
 
     var textElement = document.createElement('p');
     var messageText = document.createTextNode(message.content);
-    textElement.appendChild(textElement);
+    textElement.appendChild(messageText);
+
+    messageElement.appendChild(textElement);
+
+    messageArea.appendChild(messageElement);
+    messageArea.scrollTop = messageArea.scrollHeight;
 
 }
-usernameForm.addEventListener('submit', connect, true);
 
 
 
-messageForm.addEventListener('submit', sendMessage, true);
 
-function sendMessage() {
 
-    var messageContent = messageInput.value.trim();
-    
-    // 클라이언트가 끊어졌을 때마다 봐야돼
-    if (messageContent && stompClient){
-        var chatMessage = {
-            sender: username,
-            content: messageContent,
-            type:'CHAT'
-        }
 
-        stompClient.send('/add/chat.sendMessage', {}, JSON.stringify(chatMessage));
-        messageInput.content = '';
+function getAvatarColor(messageSender) {
+
+    var hash = 0;
+    for (var i = 0; i < messageSender.length; i++){
+        hash = 31 * hash + messageSender.charCodeAt(i);
     }
-    event.preventDefault();
+    /* 무작위 색상 테이블에서 값을 반환 */
+    var index = Math.abs(hash % colors.length);
+    return colors[index];
+
 }
+
+usernameForm.addEventListener('submit', connect, true);
+messageForm.addEventListener('submit', sendMessage, true);
