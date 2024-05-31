@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <title>Spring Boot WebSocket Chat Application</title>
-    <link rel="stylesheet" href="/css/main.css" />
+    <meta charset="UTF-8">
+
+    <title>Spring boot WebSocket Chat Application</title>
+    <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
 <noscript>
     <h2>Sorry! Your browser doesn't support Javascript</h2>
 </noscript>
+<!--stomp socket 이런걸 가져와야된다.-->
 
 <div id="username-page">
     <div class="username-page-container">
@@ -24,14 +26,13 @@
     </div>
 </div>
 
-<!--class 에 hidden 이 없으면 채팅방이 나옴-->
-<div id="chat-page" class="hidden">
+<div id="chat-page" class="hidden">   <!--class 에 hidden 이 없으면 채팅방이 나옴-->
     <div class="chat-container">
         <div class="chat-header">
             <h2>Spring WebSocket Chat Demo - By CK</h2>
         </div>
+        <!--완전히 연결되기 전까지 표시된다.-->
         <div class="connecting">
-            <!--완전히 연결되기 전까지 표시된다.-->
             Connecting...
         </div>
         <ul id="messageArea">
@@ -48,8 +49,10 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-<script src="/js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="/js/main2.js"></script>
+
+
 </body>
 </html>

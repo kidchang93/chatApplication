@@ -1,5 +1,6 @@
 package com.example.chatapplication.chat;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -7,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
 @Controller
+@Slf4j
 public class ChatController {
     // 1. 사용자 추가
     // 2. 메세지를 보내는 방법
@@ -20,8 +22,11 @@ public class ChatController {
 
     
     // 웹소켓 세션에 사용자 추가
+    @MessageMapping("/chat.addUser")
+    @SendTo("/topic/public")
     public ChatMessage addUser(@Payload ChatMessage chatMessage,
                                SimpMessageHeaderAccessor headerAccessor){
+        log.info("컨트롤러");
         headerAccessor.getSessionAttributes().put("username" , chatMessage.getSender());
         return chatMessage;
 
